@@ -92,11 +92,11 @@ LABEL comfyui-nvidia-docker-build-from="rtx4090-optimized"
 LABEL comfyui-nvidia-docker-build=${COMFYUI_NVIDIA_DOCKER_VERSION}
 RUN echo "COMFYUI_NVIDIA_DOCKER_VERSION: ${COMFYUI_NVIDIA_DOCKER_VERSION}" | tee -a ${BUILD_FILE}
 
+# Create init script as root before switching user  
+RUN echo '#!/bin/bash\necho "🚀 ComfyUI RTX 4090 Container Ready"\necho "ComfyUI will be installed at first run"\nexec "$@"' > /comfyui-nvidia_init.bash && chmod +x /comfyui-nvidia_init.bash
+
 # Start as comfytoo user
 USER comfytoo
-
-# Minimal init script (ComfyUI installation happens at runtime)
-RUN echo '#!/bin/bash\necho "🚀 ComfyUI RTX 4090 Container Ready"\necho "ComfyUI will be installed at first run"\nexec "$@"' > /comfyui-nvidia_init.bash && chmod +x /comfyui-nvidia_init.bash
 
 ENTRYPOINT [ "/comfyui-nvidia_init.bash" ]
 CMD ["python3", "-c", "print('Container ready. Mount volumes and run with proper environment variables.')"]

@@ -95,11 +95,11 @@ EXPOSE 8888 8188
 LABEL comfyui-nvidia-docker-build=${COMFYUI_NVIDIA_DOCKER_VERSION}
 RUN echo "COMFYUI_NVIDIA_DOCKER_VERSION: ${COMFYUI_NVIDIA_DOCKER_VERSION}" | tee -a ${BUILD_FILE}
 
+# JupyterLab init script (create as root)
+RUN echo '#!/bin/bash\necho "🚀 ComfyUI RTX 4090 + JupyterLab Container Ready"\necho "JupyterLab will start on port 8888"\necho "ComfyUI installation at first run"\nexec "$@"' > /comfyui-nvidia_init.bash && chmod +x /comfyui-nvidia_init.bash
+
 # Start as comfytoo user
 USER comfytoo
-
-# JupyterLab init script
-RUN echo '#!/bin/bash\necho "🚀 ComfyUI RTX 4090 + JupyterLab Container Ready"\necho "JupyterLab will start on port 8888"\necho "ComfyUI installation at first run"\nexec "$@"' > /comfyui-nvidia_init.bash && chmod +x /comfyui-nvidia_init.bash
 
 ENTRYPOINT [ "/comfyui-nvidia_init.bash" ]
 CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--NotebookApp.token=''", "--NotebookApp.password=''"]
