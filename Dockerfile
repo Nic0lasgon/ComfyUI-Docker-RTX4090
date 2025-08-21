@@ -1,7 +1,7 @@
 # ComfyUI Docker optimisé pour RTX 4090
-# Base: CUDA 12.4 pour support Ada Lovelace complet
+# Base: CUDA 12.2 pour support Ada Lovelace complet
 # Build forcé pour déploiement initial GHCR
-FROM nvidia/cuda:12.4.0-cudnn9-devel-ubuntu22.04
+FROM nvidia/cuda:12.2.2-cudnn8-devel-ubuntu22.04
 
 LABEL maintainer="ComfyUI-RTX4090-Optimized"
 LABEL version="1.0"
@@ -44,8 +44,8 @@ RUN ln -sf /usr/bin/python3 /usr/bin/python
 RUN pip3 install --upgrade pip setuptools wheel
 
 # Installer PyTorch optimisé pour RTX 4090
-RUN pip3 install torch==2.5.1+cu124 torchvision==0.20.1+cu124 torchaudio==2.5.1+cu124 \
-    --index-url https://download.pytorch.org/whl/cu124
+RUN pip3 install torch==2.5.1+cu121 torchvision==0.20.1+cu121 torchaudio==2.5.1+cu121 \
+    --index-url https://download.pytorch.org/whl/cu121
 
 # Installer xFormers pour optimisations mémoire
 RUN pip3 install xformers==0.0.28.post3
