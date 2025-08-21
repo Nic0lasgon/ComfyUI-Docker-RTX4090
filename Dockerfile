@@ -1,7 +1,7 @@
 # ComfyUI Docker optimisé pour RTX 4090
-# Base: CUDA 12.8 pour support Ada Lovelace complet
+# Base: CUDA 12.4 pour support Ada Lovelace complet
 # Build forcé pour déploiement initial GHCR
-FROM nvidia/cuda:12.8-cudnn9-devel-ubuntu22.04
+FROM nvidia/cuda:12.4.0-cudnn9-devel-ubuntu22.04
 
 LABEL maintainer="ComfyUI-RTX4090-Optimized"
 LABEL version="1.0"
