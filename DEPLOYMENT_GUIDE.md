@@ -12,7 +12,7 @@
 
 2. **Cloner et copier les fichiers** :
    ```bash
-   git clone https://github.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090.git
+   git clone https://github.com/Nic0lasgon/ComfyUI-Docker-RTX4090.git
    cd ComfyUI-Docker-RTX4090
    
    # Copier tous les fichiers du projet local
@@ -55,12 +55,12 @@ Une fois le build terminé, vos images seront disponibles :
 
 **Image Standard (Accès Direct) :**
 ```
-ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:latest
+ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:latest
 ```
 
 **Image JupyterLab (Sécurisé) :**
 ```
-ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:jupyter
+ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:jupyter
 ```
 
 ## 🎯 Test Rapid sur vast.ai
@@ -74,10 +74,10 @@ ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:jupyter
 
 2. **Configuration** :
    ```
-   Image: ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:latest
+   Image: ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:latest
    Docker Options: -p 8188:8188 --gpus all
    On-start Script: 
-   wget -O /workspace/setup.sh https://raw.githubusercontent.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090/main/scripts/vast-ai-setup.sh && chmod +x /workspace/setup.sh && /workspace/setup.sh
+   wget -O /workspace/setup.sh https://raw.githubusercontent.com/Nic0lasgon/ComfyUI-Docker-RTX4090/main/scripts/vast-ai-setup.sh && chmod +x /workspace/setup.sh && /workspace/setup.sh
    ```
 
 3. **Service Web** (pour bouton "Open" direct) :
@@ -90,12 +90,12 @@ ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:jupyter
 
 1. **Configuration** :
    ```
-   Image: ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:jupyter
+   Image: ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:jupyter
    Docker Options: -p 8888:8888 -p 8188:8188 --gpus all
    Environment Variables:
    JUPYTER_PASSWORD=votre_mot_de_passe_securise
    On-start Script:
-   wget -O /workspace/setup.sh https://raw.githubusercontent.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090/main/scripts/setup-jupyter.sh && chmod +x /workspace/setup.sh && /workspace/setup.sh
+   wget -O /workspace/setup.sh https://raw.githubusercontent.com/Nic0lasgon/ComfyUI-Docker-RTX4090/main/scripts/setup-jupyter.sh && chmod +x /workspace/setup.sh && /workspace/setup.sh
    ```
 
 2. **Service Web** :

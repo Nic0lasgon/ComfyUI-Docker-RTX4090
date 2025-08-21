@@ -8,7 +8,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_FILE="/workspace/setup.log"
 COMFYUI_DIR="/workspace/ComfyUI"
-IMAGE_NAME="ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:latest"
+IMAGE_NAME="ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:latest"
 
 # Couleurs pour l'output
 RED='\033[0;31m'

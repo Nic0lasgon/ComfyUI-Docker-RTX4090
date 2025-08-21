@@ -13,8 +13,8 @@
 ### 2. Copier le Projet (1 minute)
 
 ```bash
-# Remplacer VOTRE_USERNAME par votre nom GitHub
-git clone https://github.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090.git
+# Remplacer Nic0lasgon par votre nom GitHub
+git clone https://github.com/Nic0lasgon/ComfyUI-Docker-RTX4090.git
 cd ComfyUI-Docker-RTX4090
 
 # Copier tous nos fichiers
@@ -31,12 +31,12 @@ cp -r /Users/nicolasgonthier/Travail/ComfyUI-Docker-RTX4090/.* . 2>/dev/null || 
 ### 4. Personnaliser les URLs (1 minute)
 
 ```bash
-# Remplacer VOTRE_USERNAME dans tous les fichiers
-sed -i '' 's/VOTRE_USERNAME/votre-username-github/g' README.md
-sed -i '' 's/VOTRE_USERNAME/votre-username-github/g' QUICKSTART.md  
-sed -i '' 's/VOTRE_USERNAME/votre-username-github/g' scripts/vast-ai-setup.sh
-sed -i '' 's/VOTRE_USERNAME/votre-username-github/g' scripts/setup-jupyter.sh
-sed -i '' 's/VOTRE_USERNAME/votre-username-github/g' vast-templates/*.yaml
+# Remplacer Nic0lasgon dans tous les fichiers
+sed -i '' 's/Nic0lasgon/votre-username-github/g' README.md
+sed -i '' 's/Nic0lasgon/votre-username-github/g' QUICKSTART.md  
+sed -i '' 's/Nic0lasgon/votre-username-github/g' scripts/vast-ai-setup.sh
+sed -i '' 's/Nic0lasgon/votre-username-github/g' scripts/setup-jupyter.sh
+sed -i '' 's/Nic0lasgon/votre-username-github/g' vast-templates/*.yaml
 ```
 
 ### 5. Push et Build (15-20 minutes)

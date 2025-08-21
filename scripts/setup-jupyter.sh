@@ -8,7 +8,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_FILE="/workspace/jupyter-setup.log"
 CONTAINER_NAME="comfyui-jupyter"
-IMAGE_NAME="ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:jupyter"
+IMAGE_NAME="ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:jupyter"
 DEFAULT_PASSWORD="comfyui4090"
 
 # Couleurs pour l'output

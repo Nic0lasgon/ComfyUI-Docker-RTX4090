@@ -39,7 +39,7 @@ Ce projet propose **2 modes principaux** de déploiement sur vast.ai, chacun opt
 
 ### 🔧 Configuration Technique
 
-**Image :** `ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:latest`
+**Image :** `ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:latest`
 
 **Dockerfile :** `Dockerfile` (standard)
 
@@ -84,7 +84,7 @@ Ce projet propose **2 modes principaux** de déploiement sur vast.ai, chacun opt
 
 ### 🔧 Configuration Technique
 
-**Image :** `ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:jupyter`
+**Image :** `ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:jupyter`
 
 **Dockerfile :** `Dockerfile.jupyter` (avec JupyterLab)
 
@@ -142,7 +142,7 @@ python3 -c "from jupyter_server.auth import passwd; print(passwd('votre_password
 ### Template Accès Direct
 ```yaml
 # Copier le contenu de vast-templates/comfyui-direct.yaml
-image: ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:latest
+image: ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:latest
 services:
   - name: ComfyUI
     type: http
@@ -153,7 +153,7 @@ services:
 ### Template JupyterLab Sécurisé
 ```yaml
 # Copier le contenu de vast-templates/comfyui-jupyter.yaml
-image: ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:jupyter
+image: ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:jupyter
 services:
   - name: JupyterLab
     type: http

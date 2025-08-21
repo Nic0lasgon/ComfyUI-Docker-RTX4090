@@ -128,6 +128,6 @@ Ce projet suit le [Semantic Versioning](https://semver.org/) :
 
 ---
 
-**Maintenu par :** [VOTRE_NOM](https://github.com/VOTRE_USERNAME)  
+**Maintenu par :** [VOTRE_NOM](https://github.com/Nic0lasgon)  
 **Licence :** MIT  
-**Support :** [Issues GitHub](https://github.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090/issues)
+**Support :** [Issues GitHub](https://github.com/Nic0lasgon/ComfyUI-Docker-RTX4090/issues)

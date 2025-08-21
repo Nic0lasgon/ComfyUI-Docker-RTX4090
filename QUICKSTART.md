@@ -6,7 +6,7 @@
 
 **Image Docker :**
 ```
-ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:latest
+ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:latest
 ```
 
 **Docker Options :**
@@ -16,7 +16,7 @@ ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:latest
 
 **On-start Script :**
 ```bash
-wget -O /tmp/setup.sh https://raw.githubusercontent.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090/main/scripts/vast-ai-setup.sh && chmod +x /tmp/setup.sh && /tmp/setup.sh
+wget -O /tmp/setup.sh https://raw.githubusercontent.com/Nic0lasgon/ComfyUI-Docker-RTX4090/main/scripts/vast-ai-setup.sh && chmod +x /tmp/setup.sh && /tmp/setup.sh
 ```
 
 ### 2. Lancer l'Instance (1 minute)
@@ -152,7 +152,7 @@ nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits
 - CUDA errors → Redémarrer instance
 
 **Liens utiles :**
-- [Issues GitHub](https://github.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090/issues)
+- [Issues GitHub](https://github.com/Nic0lasgon/ComfyUI-Docker-RTX4090/issues)
 - [Discord ComfyUI](https://discord.gg/comfyui)
 - [Support vast.ai](https://vast.ai/support)
 

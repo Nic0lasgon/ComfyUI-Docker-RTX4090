@@ -70,7 +70,7 @@ ComfyUI-Docker-RTX4090/
 ### 1. Clone le repository
 
 ```bash
-git clone https://github.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090.git
+git clone https://github.com/Nic0lasgon/ComfyUI-Docker-RTX4090.git
 cd ComfyUI-Docker-RTX4090
 ```
 
@@ -90,10 +90,10 @@ L'image est automatiquement construite et publiée sur GHCR :
 
 ```bash
 # Image latest
-docker pull ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:latest
+docker pull ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:latest
 
 # Ou version spécifique
-docker pull ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:v1.0.0
+docker pull ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:v1.0.0
 ```
 
 ### 3. Démarrage local
@@ -109,7 +109,7 @@ docker run -d \
   -p 8188:8188 \
   -v $(pwd)/models:/home/comfyui/ComfyUI/models \
   -v $(pwd)/output:/home/comfyui/ComfyUI/output \
-  ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:latest
+  ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:latest
 ```
 
 ## 🌐 Déploiement sur vast.ai
@@ -133,7 +133,7 @@ docker run -d \
 
 **Image Docker :**
 ```
-ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:latest
+ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:latest
 ```
 
 **Docker Options :**
@@ -144,7 +144,7 @@ ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:latest
 **On-start Script :**
 ```bash
 #!/bin/bash
-wget -O /workspace/vast-ai-setup.sh https://raw.githubusercontent.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090/main/scripts/vast-ai-setup.sh
+wget -O /workspace/vast-ai-setup.sh https://raw.githubusercontent.com/Nic0lasgon/ComfyUI-Docker-RTX4090/main/scripts/vast-ai-setup.sh
 chmod +x /workspace/vast-ai-setup.sh
 /workspace/vast-ai-setup.sh
 ```
@@ -153,7 +153,7 @@ chmod +x /workspace/vast-ai-setup.sh
 
 **Image Docker :**
 ```
-ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:jupyter
+ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:jupyter
 ```
 
 **Docker Options :**
@@ -169,7 +169,7 @@ JUPYTER_PASSWORD=votre_mot_de_passe_ici
 **On-start Script :**
 ```bash
 #!/bin/bash
-wget -O /workspace/setup-jupyter.sh https://raw.githubusercontent.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090/main/scripts/setup-jupyter.sh
+wget -O /workspace/setup-jupyter.sh https://raw.githubusercontent.com/Nic0lasgon/ComfyUI-Docker-RTX4090/main/scripts/setup-jupyter.sh
 chmod +x /workspace/setup-jupyter.sh
 /workspace/setup-jupyter.sh
 ```
@@ -383,7 +383,7 @@ Le workflow automatisé :
 
 ```bash
 # Pull dernière version
-docker pull ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:latest
+docker pull ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:latest
 
 # Recréer container
 docker-compose down
@@ -397,7 +397,7 @@ docker-compose up -d
 
 ```bash
 # Clone + développement
-git clone https://github.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090.git
+git clone https://github.com/Nic0lasgon/ComfyUI-Docker-RTX4090.git
 cd ComfyUI-Docker-RTX4090
 
 # Mode développement
@@ -432,7 +432,7 @@ MIT License - Voir [LICENSE](LICENSE) pour détails.
 ### Resources utiles
 - 📚 [Documentation ComfyUI](https://github.com/comfyanonymous/ComfyUI)
 - 💬 [Discord ComfyUI](https://discord.gg/comfyui)
-- 🐛 [Issues GitHub](https://github.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090/issues)
+- 🐛 [Issues GitHub](https://github.com/Nic0lasgon/ComfyUI-Docker-RTX4090/issues)
 - 🚀 [vast.ai Docs](https://vast.ai/docs/)
 
 ### Contact
@@ -446,8 +446,8 @@ MIT License - Voir [LICENSE](LICENSE) pour détails.
 
 **🚀 ComfyUI RTX 4090 Optimisé - Performance Maximale sur vast.ai**
 
-[![Build Status](https://github.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090/workflows/build/badge.svg)](https://github.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090/actions)
-[![Docker Image](https://ghcr-badge.egpl.dev/VOTRE_USERNAME/comfyui-docker-rtx4090/latest_tag?trim=major&label=latest)](https://github.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090/pkgs/container/comfyui-docker-rtx4090)
+[![Build Status](https://github.com/Nic0lasgon/ComfyUI-Docker-RTX4090/workflows/build/badge.svg)](https://github.com/Nic0lasgon/ComfyUI-Docker-RTX4090/actions)
+[![Docker Image](https://ghcr-badge.egpl.dev/Nic0lasgon/comfyui-docker-rtx4090/latest_tag?trim=major&label=latest)](https://github.com/Nic0lasgon/ComfyUI-Docker-RTX4090/pkgs/container/comfyui-docker-rtx4090)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 </div>

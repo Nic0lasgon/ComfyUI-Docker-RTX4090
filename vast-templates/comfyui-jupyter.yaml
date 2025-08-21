@@ -2,7 +2,7 @@
 # Usage: vast create -f comfyui-jupyter.yaml
 
 # Configuration de l'instance - Version JupyterLab sécurisée
-image: ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:jupyter
+image: ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:jupyter
 
 # Ressources recommandées RTX 4090
 resources:
@@ -51,7 +51,7 @@ onstart: |
   mkdir -p /workspace/models/{checkpoints,vae,clip,controlnet,upscale_models}
   
   # Télécharger le script de configuration JupyterLab
-  wget -O /workspace/setup-jupyter.sh https://raw.githubusercontent.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090/main/scripts/setup-jupyter.sh
+  wget -O /workspace/setup-jupyter.sh https://raw.githubusercontent.com/Nic0lasgon/ComfyUI-Docker-RTX4090/main/scripts/setup-jupyter.sh
   chmod +x /workspace/setup-jupyter.sh
   
   # Démarrer le container avec JupyterLab
@@ -71,7 +71,7 @@ onstart: |
     -v /workspace/notebooks:/home/jupyter/notebooks \
     --shm-size=1g \
     --memory=30g \
-    ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:jupyter
+    ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:jupyter
     
   # Attendre que les services soient prêts
   echo "⏳ Attente des services..."

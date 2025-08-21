@@ -2,7 +2,7 @@
 # Usage: vast create -f comfyui-direct.yaml
 
 # Configuration de l'instance
-image: ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:latest
+image: ghcr.io/Nic0lasgon/comfyui-docker-rtx4090:latest
 
 # Ressources recommandées RTX 4090
 resources:
@@ -37,7 +37,7 @@ onstart: |
   echo "🚀 Configuration ComfyUI RTX 4090..."
   
   # Télécharger le script de setup
-  wget -O /workspace/vast-ai-setup.sh https://raw.githubusercontent.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090/main/scripts/vast-ai-setup.sh
+  wget -O /workspace/vast-ai-setup.sh https://raw.githubusercontent.com/Nic0lasgon/ComfyUI-Docker-RTX4090/main/scripts/vast-ai-setup.sh
   chmod +x /workspace/vast-ai-setup.sh
   
   # Exécuter le setup
