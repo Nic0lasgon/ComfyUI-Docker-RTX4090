@@ -1,0 +1,194 @@
+version: '3.8'
+
+services:
+  comfyui-rtx4090:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: comfyui-rtx4090-optimized:latest
+    container_name: comfyui-vast
+    restart: unless-stopped
+    
+    # Configuration GPU RTX 4090
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    
+    # Variables d'environnement pour optimisations
+    environment:
+      - PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+      - CUDA_VISIBLE_DEVICES=0
+      - TORCH_CUDA_ARCH_LIST=8.9
+      - FORCE_CUDA=1
+      - MAX_JOBS=8
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    
+    # Ports
+    ports:
+      - "8188:8188"
+    
+    # Volumes pour persistance
+    volumes:
+      # Modèles persistants
+      - comfyui_models:/home/comfyui/ComfyUI/models
+      - comfyui_output:/home/comfyui/ComfyUI/output
+      - comfyui_input:/home/comfyui/ComfyUI/input
+      - comfyui_logs:/home/comfyui/ComfyUI/logs
+      # Configuration personnalisée
+      - ./config:/home/comfyui/ComfyUI/user_config:ro
+      # Cache pour améliorer les performances
+      - comfyui_cache:/home/comfyui/.cache
+    
+    # Limites mémoire optimisées pour RTX 4090
+    mem_limit: 32g
+    memswap_limit: 32g
+    
+    # Configuration réseau
+    networks:
+      - comfyui_network
+    
+    # Healthcheck amélioré
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8188/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    # Logging pour monitoring
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+# Configuration pour développement local
+  comfyui-dev:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: comfyui-rtx4090-optimized:dev
+    container_name: comfyui-dev
+    profiles:
+      - dev
+    
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    
+    environment:
+      - PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+      - CUDA_VISIBLE_DEVICES=0
+    
+    ports:
+      - "8189:8188"
+    
+    volumes:
+      - ./custom_nodes:/home/comfyui/ComfyUI/custom_nodes
+      - ./models:/home/comfyui/ComfyUI/models
+      - ./output:/home/comfyui/ComfyUI/output
+      - ./logs:/home/comfyui/ComfyUI/logs
+    
+    command: ./start_comfyui.sh --auto-launch-browser
+
+# Configuration JupyterLab sécurisé
+  comfyui-jupyter:
+    build: 
+      context: .
+      dockerfile: Dockerfile.jupyter
+    image: comfyui-rtx4090-optimized:jupyter
+    container_name: comfyui-jupyter
+    profiles:
+      - jupyter
+    restart: unless-stopped
+    
+    # Configuration GPU RTX 4090
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    
+    # Variables d'environnement pour optimisations + JupyterLab
+    environment:
+      - PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+      - CUDA_VISIBLE_DEVICES=0
+      - TORCH_CUDA_ARCH_LIST=8.9
+      - FORCE_CUDA=1
+      - MAX_JOBS=8
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - JUPYTER_PASSWORD=comfyui4090
+    
+    # Ports JupyterLab + ComfyUI
+    ports:
+      - "8888:8888"  # JupyterLab (point d'entrée sécurisé)
+      - "8189:8188"  # ComfyUI (accès via proxy)
+    
+    # Volumes pour persistance
+    volumes:
+      # Modèles persistants
+      - comfyui_models:/home/jupyter/ComfyUI/models
+      - comfyui_output:/home/jupyter/ComfyUI/output
+      - comfyui_input:/home/jupyter/ComfyUI/input
+      - comfyui_logs:/home/jupyter/ComfyUI/logs
+      # Notebooks JupyterLab
+      - comfyui_notebooks:/home/jupyter/notebooks
+      # Configuration JupyterLab
+      - ./config:/home/jupyter/.jupyter:ro
+      # Cache pour améliorer les performances
+      - comfyui_cache:/home/jupyter/.cache
+    
+    # Limites mémoire optimisées pour RTX 4090
+    mem_limit: 32g
+    memswap_limit: 32g
+    
+    # Configuration réseau
+    networks:
+      - comfyui_network
+    
+    # Healthcheck pour JupyterLab
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/api"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    
+    # Logging pour monitoring
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+# Volumes nommés pour persistance
+volumes:
+  comfyui_models:
+    driver: local
+  comfyui_output:
+    driver: local
+  comfyui_input:
+    driver: local
+  comfyui_logs:
+    driver: local
+  comfyui_cache:
+    driver: local
+  comfyui_notebooks:
+    driver: local
+
+# Réseau dédié
+networks:
+  comfyui_network:
+    driver: bridge

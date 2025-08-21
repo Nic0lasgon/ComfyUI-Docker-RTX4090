@@ -1,0 +1,281 @@
+# ComfyUI Docker avec JupyterLab et authentification - RTX 4090 optimisé
+# Base: CUDA 12.8 pour support Ada Lovelace complet
+FROM nvidia/cuda:12.8-cudnn9-devel-ubuntu22.04
+
+LABEL maintainer="ComfyUI-RTX4090-Optimized-Jupyter"
+LABEL version="1.0"
+LABEL description="ComfyUI optimisé RTX 4090 avec JupyterLab et authentification"
+
+# Éviter les prompts interactifs
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
+# Variables d'environnement pour optimisations RTX 4090
+ENV PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+ENV CUDA_VISIBLE_DEVICES=0
+ENV TORCH_CUDA_ARCH_LIST="8.9"
+ENV FORCE_CUDA=1
+ENV MAX_JOBS=8
+
+# Installation des dépendances système
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-dev \
+    git \
+    wget \
+    curl \
+    unzip \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    libgoogle-perftools4 \
+    libtcmalloc-minimal4 \
+    ffmpeg \
+    libsndfile1 \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# Configurer Python
+RUN ln -sf /usr/bin/python3 /usr/bin/python
+RUN pip3 install --upgrade pip setuptools wheel
+
+# Installer PyTorch optimisé pour RTX 4090
+RUN pip3 install torch==2.5.1+cu124 torchvision==0.20.1+cu124 torchaudio==2.5.1+cu124 \
+    --index-url https://download.pytorch.org/whl/cu124
+
+# Installer xFormers pour optimisations mémoire
+RUN pip3 install xformers==0.0.28.post3
+
+# Installer JupyterLab et extensions
+RUN pip3 install \
+    jupyterlab==4.0.* \
+    notebook \
+    jupyter-server-proxy \
+    jupyter-resource-usage \
+    jupyterlab-git \
+    jupyterlab-system-monitor
+
+# Créer utilisateur pour Jupyter
+RUN useradd -m -s /bin/bash -u 1000 jupyter
+USER jupyter
+WORKDIR /home/jupyter
+
+# Créer le répertoire de configuration Jupyter
+RUN mkdir -p /home/jupyter/.jupyter
+
+# Cloner ComfyUI
+RUN git clone https://github.com/comfyanonymous/ComfyUI.git /home/jupyter/ComfyUI
+WORKDIR /home/jupyter/ComfyUI
+
+# Installer les dépendances ComfyUI
+RUN pip3 install --user -r requirements.txt
+
+# Installer les dépendances supplémentaires pour RTX 4090
+RUN pip3 install --user \
+    accelerate \
+    transformers \
+    diffusers \
+    compel \
+    opencv-python \
+    pillow-simd \
+    numba \
+    scipy \
+    einops \
+    timm \
+    kornia \
+    spandrel
+
+# Installation des extensions essentielles
+WORKDIR /home/jupyter/ComfyUI/custom_nodes
+
+# ComfyUI Manager - Gestion des nodes
+RUN git clone https://github.com/ltdrdata/ComfyUI-Manager.git
+
+# rgthree-comfy - Workflow amélioré
+RUN git clone https://github.com/rgthree/rgthree-comfy.git
+RUN cd rgthree-comfy && pip3 install --user -r requirements.txt
+
+# WAS Node Suite - Suite complète d'outils
+RUN git clone https://github.com/WASasquatch/was-node-suite-comfyui.git
+RUN cd was-node-suite-comfyui && pip3 install --user -r requirements.txt
+
+# ComfyUI Impact Pack - Enhancement facial
+RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack.git
+RUN cd ComfyUI-Impact-Pack && pip3 install --user -r requirements.txt
+
+# IPAdapter Plus - Transfert de style
+RUN git clone https://github.com/cubiq/ComfyUI_IPAdapter_plus.git
+
+# ComfyUI KJNodes - Utilitaires pratiques
+RUN git clone https://github.com/kijai/ComfyUI-KJNodes.git
+RUN cd ComfyUI-KJNodes && pip3 install --user -r requirements.txt
+
+# Custom Scripts - Scripts personnalisés
+RUN git clone https://github.com/pythongosssss/ComfyUI-Custom-Scripts.git
+
+# cg-use-everywhere - Connexions sans fil
+RUN git clone https://github.com/chrisgoringe/cg-use-everywhere.git
+
+# ComfyUI Essentials - QOL améliorations
+RUN git clone https://github.com/cubiq/ComfyUI_essentials.git
+
+# Ultimate SD Upscale - Upscaling avancé
+RUN git clone https://github.com/ssitu/ComfyUI_UltimateSDUpscale.git
+
+# Retour au répertoire principal
+WORKDIR /home/jupyter
+
+# Créer les répertoires pour les modèles
+RUN mkdir -p ComfyUI/models/checkpoints ComfyUI/models/vae ComfyUI/models/clip ComfyUI/models/controlnet ComfyUI/models/upscale_models
+
+# Configuration JupyterLab
+RUN echo 'c = get_config()\n\
+\n\
+# Autoriser tout accès depuis le réseau\n\
+c.ServerApp.ip = "0.0.0.0"\n\
+c.ServerApp.port = 8888\n\
+c.ServerApp.open_browser = False\n\
+c.ServerApp.allow_origin = "*"\n\
+c.ServerApp.allow_remote_access = True\n\
+\n\
+# Désactiver les tokens par défaut (mot de passe utilisé)\n\
+c.ServerApp.token = ""\n\
+\n\
+# Configuration du mot de passe (sera remplacé par le script de setup)\n\
+# Mot de passe par défaut : "comfyui4090" (changeable)\n\
+c.ServerApp.password = "argon2:$argon2id$v=19$m=10240,t=10,p=8$UmF1bXJmN2t3YW9pdHVw$O/tbxglOUxZkBMbFzQhLWC+Nq1JUqtuoN8iF6kPr6J0"\n\
+\n\
+# Configuration du proxy pour ComfyUI\n\
+c.ServerApp.tornado_settings = {\n\
+    "headers": {\n\
+        "Content-Security-Policy": "frame-ancestors '\''self'\'' *;"\n\
+    }\n\
+}\n\
+' > /home/jupyter/.jupyter/jupyter_server_config.py
+
+# Configuration du proxy ComfyUI via extension
+RUN pip3 install --user jupyter-comfyui-proxy
+
+# Script de génération de mot de passe personnalisé
+RUN echo '#!/bin/bash\n\
+echo "🔐 Générateur de mot de passe JupyterLab"\n\
+echo "Usage: $0 [mot_de_passe]"\n\
+echo ""\n\
+PASSWORD=${1:-comfyui4090}\n\
+echo "Génération du hash pour: $PASSWORD"\n\
+python3 -c "\n\
+from jupyter_server.auth import passwd\n\
+print('\''Hash généré:'\'')\n\
+print(passwd('\''$PASSWORD'\''))\n\
+print('\'''\'')\n\
+print('\''Pour utiliser ce hash, modifiez le fichier ~/.jupyter/jupyter_server_config.py'\'')\n\
+print('\''et remplacez la ligne c.ServerApp.password par:'\'')\n\
+print('\''c.ServerApp.password = \"'\'' + passwd('\''$PASSWORD'\'') + '\''\"'\'')\n\
+"\n\
+' > /home/jupyter/generate_password.sh && chmod +x /home/jupyter/generate_password.sh
+
+# Script de démarrage ComfyUI optimisé (pour proxy)
+RUN echo '#!/bin/bash\n\
+echo "🚀 Démarrage ComfyUI pour JupyterLab proxy..."\n\
+cd /home/jupyter/ComfyUI\n\
+\n\
+# Optimisations mémoire\n\
+export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512\n\
+export CUDA_VISIBLE_DEVICES=0\n\
+\n\
+# Démarrage ComfyUI sur localhost pour proxy\n\
+python3 main.py \\\n\
+    --listen 127.0.0.1 \\\n\
+    --port 8188 \\\n\
+    --use-pytorch-cross-attention \\\n\
+    --cuda-malloc \\\n\
+    --use-stream \\\n\
+    --highvram \\\n\
+    --fast \\\n\
+    --force-fp16 \\\n\
+    --disable-nan-check \\\n\
+    "$@"\n\
+' > /home/jupyter/start_comfyui_proxy.sh && chmod +x /home/jupyter/start_comfyui_proxy.sh
+
+# Script de démarrage JupyterLab avec proxy ComfyUI
+RUN echo '#!/bin/bash\n\
+echo "🚀 Démarrage JupyterLab avec ComfyUI RTX 4090..."\n\
+\n\
+# Démarrer ComfyUI en arrière-plan\n\
+echo "📡 Lancement ComfyUI proxy..."\n\
+cd /home/jupyter\n\
+./start_comfyui_proxy.sh &\n\
+COMFYUI_PID=$!\n\
+\n\
+# Attendre que ComfyUI soit prêt\n\
+echo "⏳ Attente de ComfyUI..."\n\
+for i in {1..60}; do\n\
+    if curl -s http://127.0.0.1:8188/ > /dev/null 2>&1; then\n\
+        echo "✅ ComfyUI prêt!"\n\
+        break\n\
+    fi\n\
+    sleep 1\n\
+done\n\
+\n\
+# Démarrer JupyterLab\n\
+echo "🔬 Lancement JupyterLab..."\n\
+exec jupyter lab \\\n\
+    --ServerApp.root_dir=/home/jupyter \\\n\
+    --ServerApp.notebook_dir=/home/jupyter \\\n\
+    --ServerApp.allow_origin="*" \\\n\
+    --ServerApp.disable_check_xsrf=True \\\n\
+    --ServerApp.allow_remote_access=True\n\
+' > /home/jupyter/start_jupyter_comfyui.sh && chmod +x /home/jupyter/start_jupyter_comfyui.sh
+
+# Extension JupyterLab personnalisée pour ComfyUI
+RUN mkdir -p /home/jupyter/.jupyter/lab/user-settings/@jupyterlab/launcher-extension/ && \
+    echo '{\n\
+    "comfyui": {\n\
+        "name": "ComfyUI",\n\
+        "description": "Interface ComfyUI optimisée RTX 4090",\n\
+        "url": "/proxy/8188/",\n\
+        "icon": "ui-components:database",\n\
+        "category": "AI/ML"\n\
+    }\n\
+}' > /home/jupyter/.jupyter/lab/user-settings/@jupyterlab/launcher-extension/plugin.jupyterlab-settings
+
+# Script de vérification setup (health check)
+RUN echo '#!/bin/bash\n\
+echo "🔍 Vérification setup JupyterLab + ComfyUI RTX 4090..."\n\
+\n\
+# Test Python et CUDA\n\
+python3 -c "import torch; print(f\"CUDA disponible: {torch.cuda.is_available()}\")" || exit 1\n\
+python3 -c "import torch; print(f\"GPU détecté: {torch.cuda.get_device_name() if torch.cuda.is_available() else \"Aucun\"}\")" || exit 1\n\
+\n\
+# Test JupyterLab\n\
+jupyter --version || exit 1\n\
+echo "✅ JupyterLab installé"\n\
+\n\
+# Test extensions\n\
+python3 -c "try: import xformers; print(\"✅ xFormers installé\"); except: print(\"❌ xFormers manquant\"); exit(1)" || exit 1\n\
+\n\
+# Test ComfyUI\n\
+ls -la /home/jupyter/ComfyUI/main.py > /dev/null || exit 1\n\
+echo "✅ ComfyUI installé"\n\
+\n\
+# Test extensions ComfyUI\n\
+ls -la /home/jupyter/ComfyUI/custom_nodes/ | grep -E "(Manager|rgthree|was-node)" > /dev/null || exit 1\n\
+echo "✅ Extensions ComfyUI installées"\n\
+\n\
+echo "🔧 Configuration système prête pour JupyterLab + ComfyUI RTX 4090"\n\
+' > /home/jupyter/check_jupyter_setup.sh && chmod +x /home/jupyter/check_jupyter_setup.sh
+
+# Exposition des ports
+EXPOSE 8888 8188
+
+# Healthcheck pour JupyterLab
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+    CMD curl -f http://localhost:8888/api || exit 1
+
+# Commande par défaut
+CMD ["./start_jupyter_comfyui.sh"]

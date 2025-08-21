@@ -1,0 +1,63 @@
+# Template vast.ai - ComfyUI Direct (bouton Open direct vers ComfyUI)
+# Usage: vast create -f comfyui-direct.yaml
+
+# Configuration de l'instance
+image: ghcr.io/VOTRE_USERNAME/comfyui-docker-rtx4090:latest
+
+# Ressources recommandées RTX 4090
+resources:
+  gpu: 1
+  gpu_type: "RTX4090"  # ou "RTX_4090" selon format vast.ai
+  cpu: 8
+  ram: 32G
+  storage: 100G
+
+# Configuration réseau et ports
+ports:
+  - 8188:8188  # ComfyUI interface
+
+# Services web - Le bouton "Open" pointera directement sur ComfyUI
+services:
+  - name: ComfyUI
+    type: http
+    port: 8188
+    path: /
+    description: "Interface ComfyUI optimisée RTX 4090"
+
+# Variables d'environnement pour optimisations
+environment:
+  PYTORCH_CUDA_ALLOC_CONF: "max_split_size_mb:512"
+  CUDA_VISIBLE_DEVICES: "0"
+  NVIDIA_VISIBLE_DEVICES: "all"
+  NVIDIA_DRIVER_CAPABILITIES: "compute,utility"
+
+# Script de démarrage (on-start)
+onstart: |
+  #!/bin/bash
+  echo "🚀 Configuration ComfyUI RTX 4090..."
+  
+  # Télécharger le script de setup
+  wget -O /workspace/vast-ai-setup.sh https://raw.githubusercontent.com/VOTRE_USERNAME/ComfyUI-Docker-RTX4090/main/scripts/vast-ai-setup.sh
+  chmod +x /workspace/vast-ai-setup.sh
+  
+  # Exécuter le setup
+  /workspace/vast-ai-setup.sh
+  
+  echo "✅ ComfyUI prêt sur http://$(curl -s ifconfig.me):8188/"
+
+# Volumes pour persistance des données
+volumes:
+  - /workspace/models:/home/comfyui/ComfyUI/models
+  - /workspace/output:/home/comfyui/ComfyUI/output  
+  - /workspace/input:/home/comfyui/ComfyUI/input
+  - /workspace/logs:/home/comfyui/ComfyUI/logs
+
+# Configuration Docker
+docker_options: "--gpus all --shm-size=1g"
+
+# Méta-données
+metadata:
+  title: "ComfyUI RTX 4090 Optimized"
+  description: "ComfyUI avec optimisations complètes RTX 4090, extensions essentielles et monitoring intégré"
+  version: "1.0.0"
+  tags: ["comfyui", "rtx4090", "stable-diffusion", "flux", "sdxl"]

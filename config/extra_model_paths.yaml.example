@@ -1,0 +1,42 @@
+# Configuration des chemins de modèles ComfyUI
+# Renommez ce fichier en extra_model_paths.yaml pour l'utiliser
+
+# Configuration pour vast.ai avec volumes persistants
+comfyui:
+    # Modèles Stable Diffusion
+    checkpoints: /workspace/models/checkpoints
+    
+    # VAE (Variational Autoencoders)
+    vae: /workspace/models/vae
+    
+    # Modèles CLIP
+    clip: /workspace/models/clip
+    
+    # Modèles ControlNet
+    controlnet: /workspace/models/controlnet
+    
+    # Modèles d'upscaling
+    upscale_models: /workspace/models/upscale_models
+    
+    # Embeddings/Textual Inversions
+    embeddings: /workspace/models/embeddings
+    
+    # LoRA models
+    loras: /workspace/models/loras
+    
+    # Modèles de diffusion (pour AnimateDiff etc.)
+    diffusion_models: /workspace/models/diffusion_models
+    
+    # Configuration pour development local (optionnel)
+    # Décommentez si vous utilisez des chemins locaux personnalisés
+    # checkpoints: /path/to/your/local/checkpoints
+    # vae: /path/to/your/local/vae
+
+# Configuration alternative pour stockage local
+# local:
+#     base_path: /home/user/AI/models
+#     checkpoints: /home/user/AI/models/checkpoints
+#     vae: /home/user/AI/models/vae
+#     clip: /home/user/AI/models/clip
+#     controlnet: /home/user/AI/models/controlnet
+#     upscale_models: /home/user/AI/models/upscale_models

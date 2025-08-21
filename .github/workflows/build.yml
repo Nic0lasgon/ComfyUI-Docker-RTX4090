@@ -1,0 +1,234 @@
+name: Build and Push ComfyUI RTX 4090 to GHCR
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      force_build:
+        description: 'Force rebuild even without changes'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable={{is_default_branch}}
+          labels: |
+            org.opencontainers.image.title=ComfyUI RTX 4090 Optimized
+            org.opencontainers.image.description=ComfyUI optimisé pour RTX 4090 avec extensions essentielles
+            org.opencontainers.image.vendor=ComfyUI-Community
+            maintainer=ComfyUI RTX 4090 Optimized
+
+      - name: Check for Docker changes
+        id: docker_changes
+        run: |
+          if git diff --name-only HEAD~1 HEAD | grep -E "(Dockerfile|docker-compose|\.dockerignore|requirements)" || [ "${{ github.event.inputs.force_build }}" == "true" ] || [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "docker_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "docker_changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build and push Docker image (Standard)
+        if: steps.docker_changes.outputs.docker_changed == 'true' || github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+
+      - name: Extract metadata (JupyterLab)
+        id: meta-jupyter
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch,suffix=-jupyter
+            type=ref,event=pr,suffix=-jupyter
+            type=semver,pattern={{version}}-jupyter
+            type=semver,pattern={{major}}.{{minor}}-jupyter
+            type=semver,pattern={{major}}-jupyter
+            type=sha,prefix=sha-,suffix=-jupyter
+            type=raw,value=jupyter,enable={{is_default_branch}}
+          labels: |
+            org.opencontainers.image.title=ComfyUI RTX 4090 + JupyterLab
+            org.opencontainers.image.description=ComfyUI optimisé RTX 4090 avec JupyterLab et authentification
+            org.opencontainers.image.vendor=ComfyUI-Community
+            maintainer=ComfyUI RTX 4090 Optimized
+
+      - name: Build and push Docker image (JupyterLab)
+        if: steps.docker_changes.outputs.docker_changed == 'true' || github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.jupyter
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta-jupyter.outputs.tags }}
+          labels: ${{ steps.meta-jupyter.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+          
+      - name: Test image functionality (Standard)
+        if: steps.docker_changes.outputs.docker_changed == 'true'
+        run: |
+          echo "🧪 Test de l'image standard..."
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest ./check_setup.sh || echo "⚠️ Tests ignorés (pas de GPU disponible en CI)"
+
+      - name: Test image functionality (JupyterLab)
+        if: steps.docker_changes.outputs.docker_changed == 'true'
+        run: |
+          echo "🧪 Test de l'image JupyterLab..."
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:jupyter ./check_jupyter_setup.sh || echo "⚠️ Tests JupyterLab ignorés (pas de GPU disponible en CI)"
+
+      - name: Image size and layers analysis
+        if: steps.docker_changes.outputs.docker_changed == 'true'
+        run: |
+          echo "📊 Analyse des images:"
+          echo "=== IMAGE STANDARD ==="
+          docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          echo "=== IMAGE JUPYTER ==="
+          docker images ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:jupyter
+
+      - name: Scan image for vulnerabilities
+        if: steps.docker_changes.outputs.docker_changed == 'true'
+        uses: anchore/scan-action@v3
+        continue-on-error: true
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          fail-build: false
+          severity-cutoff: critical
+
+      - name: Generate deployment summary
+        if: steps.docker_changes.outputs.docker_changed == 'true'
+        run: |
+          cat << 'EOF' >> $GITHUB_STEP_SUMMARY
+          ## 🚀 ComfyUI RTX 4090 - Image Build Summary
+          
+          ### 📋 Build Info
+          - **Repository**: ${{ github.repository }}
+          - **Commit**: ${{ github.sha }}
+          - **Branch/Tag**: ${{ github.ref_name }}
+          - **Build Time**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          
+          ### 🏷️ Images Construites
+          
+          #### 🎮 Image Standard (Accès Direct)
+          ```
+          ${{ steps.meta.outputs.tags }}
+          ```
+          
+          #### 🔐 Image JupyterLab (Sécurisé)
+          ```
+          ${{ steps.meta-jupyter.outputs.tags }}
+          ```
+          
+          ### 📦 Quick Start on vast.ai
+          
+          #### Mode Accès Direct:
+          ```bash
+          # Image
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          
+          # Docker Options  
+          -p 8188:8188 --gpus all
+          
+          # On-start Script
+          wget -O /workspace/setup.sh https://raw.githubusercontent.com/${{ github.repository }}/main/scripts/vast-ai-setup.sh && chmod +x /workspace/setup.sh && /workspace/setup.sh
+          ```
+          
+          #### Mode JupyterLab Sécurisé:
+          ```bash
+          # Image
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:jupyter
+          
+          # Docker Options  
+          -p 8888:8888 -p 8188:8188 --gpus all
+          
+          # Environment
+          JUPYTER_PASSWORD=votre_mot_de_passe
+          
+          # On-start Script
+          wget -O /workspace/setup.sh https://raw.githubusercontent.com/${{ github.repository }}/main/scripts/setup-jupyter.sh && chmod +x /workspace/setup.sh && /workspace/setup.sh
+          ```
+          
+          ### 🔗 Access
+          
+          **Accès Direct :** `http://your-vast-instance:8188`  
+          **JupyterLab :** `http://your-vast-instance:8888` (mot de passe requis)
+          
+          ### ⚡ Optimisations RTX 4090 Incluses
+          - ✅ CUDA 12.8 + PyTorch optimisé
+          - ✅ xFormers pour accélération mémoire
+          - ✅ Extensions essentielles pré-installées
+          - ✅ Paramètres de lancement optimisés
+          - ✅ Monitoring GPU intégré
+          - ✅ Logging avancé avec rotation
+          EOF
+
+  # Job pour notifier en cas d'échec
+  notify-failure:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: failure()
+    steps:
+      - name: Notify build failure
+        run: |
+          echo "❌ Build failed for ComfyUI RTX 4090 optimized image"
+          echo "Check the logs above for details"
