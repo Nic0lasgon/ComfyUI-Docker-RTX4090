@@ -1,6 +1,6 @@
 # ComfyUI Docker optimisé pour RTX 4090
 # Base: CUDA 12.2 pour support Ada Lovelace complet
-# Build forcé pour déploiement initial GHCR
+# Simplifié pour éviter les conflits d'installation Python
 FROM nvidia/cuda:12.2.2-cudnn8-devel-ubuntu22.04
 
 LABEL maintainer="ComfyUI-RTX4090-Optimized"
@@ -47,8 +47,8 @@ RUN pip3 install --upgrade pip setuptools wheel
 RUN pip3 install torch==2.5.1+cu121 torchvision==0.20.1+cu121 torchaudio==2.5.1+cu121 \
     --index-url https://download.pytorch.org/whl/cu121
 
-# Installer xFormers pour optimisations mémoire
-RUN pip3 install xformers==0.0.28.post3
+# Installer xFormers pour optimisations mémoire (installation après PyTorch)
+RUN pip3 install xformers --index-url https://download.pytorch.org/whl/cu121
 
 # Créer utilisateur non-root
 RUN useradd -m -s /bin/bash comfyui
@@ -62,57 +62,14 @@ WORKDIR /home/comfyui/ComfyUI
 # Installer les dépendances ComfyUI
 RUN pip3 install --user -r requirements.txt
 
-# Installer les dépendances supplémentaires pour RTX 4090
-RUN pip3 install --user \
-    accelerate \
-    transformers \
-    diffusers \
-    compel \
-    opencv-python \
-    pillow-simd \
-    numba \
-    scipy \
-    einops \
-    timm \
-    kornia \
-    spandrel
+# Installer quelques dépendances essentielles pour RTX 4090
+RUN pip3 install --user accelerate transformers diffusers
 
 # Installation des extensions essentielles
 WORKDIR /home/comfyui/ComfyUI/custom_nodes
 
-# ComfyUI Manager - Gestion des nodes
+# ComfyUI Manager - Gestion des nodes (essentiel)
 RUN git clone https://github.com/ltdrdata/ComfyUI-Manager.git
-
-# rgthree-comfy - Workflow amélioré
-RUN git clone https://github.com/rgthree/rgthree-comfy.git
-RUN cd rgthree-comfy && pip3 install --user -r requirements.txt
-
-# WAS Node Suite - Suite complète d'outils
-RUN git clone https://github.com/WASasquatch/was-node-suite-comfyui.git
-RUN cd was-node-suite-comfyui && pip3 install --user -r requirements.txt
-
-# ComfyUI Impact Pack - Enhancement facial
-RUN git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack.git
-RUN cd ComfyUI-Impact-Pack && pip3 install --user -r requirements.txt
-
-# IPAdapter Plus - Transfert de style
-RUN git clone https://github.com/cubiq/ComfyUI_IPAdapter_plus.git
-
-# ComfyUI KJNodes - Utilitaires pratiques
-RUN git clone https://github.com/kijai/ComfyUI-KJNodes.git
-RUN cd ComfyUI-KJNodes && pip3 install --user -r requirements.txt
-
-# Custom Scripts - Scripts personnalisés
-RUN git clone https://github.com/pythongosssss/ComfyUI-Custom-Scripts.git
-
-# cg-use-everywhere - Connexions sans fils
-RUN git clone https://github.com/chrisgoringe/cg-use-everywhere.git
-
-# ComfyUI Essentials - QOL améliorations
-RUN git clone https://github.com/cubiq/ComfyUI_essentials.git
-
-# Ultimate SD Upscale - Upscaling avancé
-RUN git clone https://github.com/ssitu/ComfyUI_UltimateSDUpscale.git
 
 # Retour au répertoire ComfyUI
 WORKDIR /home/comfyui/ComfyUI
