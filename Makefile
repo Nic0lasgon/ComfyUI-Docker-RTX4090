@@ -5,7 +5,7 @@
 IMAGE_NAME = comfyui-rtx4090-optimized
 CONTAINER_NAME = comfyui-vast
 REGISTRY = ghcr.io
-GITHUB_USER = VOTRE_USERNAME
+GITHUB_USER = Nic0lasgon
 FULL_IMAGE_NAME = $(REGISTRY)/$(GITHUB_USER)/comfyui-docker-rtx4090
 
 # Couleurs pour l'affichage
